@@ -261,5 +261,6 @@ let drop2 l n =
     match l with
     | [] -> []
     | _ :: tl when ctr = n -> f 1 tl
-    | e :: tl -> f (ctr + 1) (e :: tl)
+    | e :: tl -> e :: f (ctr + 1) tl
   in
+  f 1 l
