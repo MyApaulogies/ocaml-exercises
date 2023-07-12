@@ -1,3 +1,6 @@
+(* these are the solutions to https://ocaml.org/problems?difficulty_level=All 
+   which I have simply tested by pasting into `utop` so far
+   this file was basically written in order *)
 
 let rec last l =
   match l with
@@ -57,9 +60,9 @@ let nodeflatten l =
 
 
 (* attempt 2 after seeing `compress` solution + strategy (this is so fucking cool) *)
-let rec node_flatten = function
-  | One x :: tl -> x :: node_flatten tl
-  | Many xs :: tl -> node_flatten xs @ node_flatten tl
+let rec nodeflatten2 = function
+  | One x :: tl -> x :: nodeflatten2 tl
+  | Many xs :: tl -> nodeflatten2 xs @ nodeflatten2 tl
   | [] -> []
 
 
@@ -125,7 +128,7 @@ def groupdup(lis):
 *)
 
 (* less complicated (not really) *)
-let group_dup l = 
+let groupdup2 l = 
   let rec f res = function
   | [] -> []
   | elem :: tl -> 
@@ -143,7 +146,7 @@ let group_dup l =
 
 
 (* saw solution *)
-let pack_dup l = 
+let groupdup3 l = 
   let rec f sub res = function
     | a :: (b :: _ as tl) -> 
       if a = b then
@@ -169,7 +172,7 @@ let encode1 l =
 
 let encode2 l =
   l 
-  |> group_dup 
+  |> groupdup2 
   |> List.map (fun (elem :: tl) -> (1 + len tl, elem))
 
 
