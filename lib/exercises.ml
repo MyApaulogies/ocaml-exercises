@@ -267,3 +267,88 @@ let drop2 l n =
     | e :: tl -> e :: f (ctr + 1) tl
   in
   f 1 l
+
+
+(* new, successful attempt (lets go) *)
+let rec listflatten2 = function
+  | [] -> []
+  | sublist :: tl -> sublist @ listflatten2 tl
+
+
+
+(* weird -- do something car on left, then recurse, then cons on right *)
+(* this one took a pen and paper *)
+let split l length =
+  let rec f n acc l = 
+    if n = 0 then
+      (acc, l)
+    else
+      match l with
+      | [] -> (acc, [])
+      | e :: tl -> 
+        let (left, right) = f (n-1) acc tl 
+        in 
+        (e :: left, right)
+  in
+  f length [] l
+
+
+(* saw solution *)
+let split2 l length =
+  let rec f n acc l = 
+    if n = 0 then
+      reverse acc, l
+    else
+      match l with
+      | [] -> (acc, [])
+      | e :: tl -> f (n-1) (e::acc) tl
+  in
+  f length [] l
+
+
+let rec slice l start stop = 
+  match l with
+  | [] -> []
+  | e :: tl -> 
+    if start > 0 then
+      slice tl (start-1) (stop-1)
+    else if stop > 0 then
+      (* now ignore start *) 
+      e :: slice tl 0 (stop-1)
+    else
+      [e]
+
+
+(* after seeing solution *)
+let rec drop n l =
+  match l, n with
+  | [], _ -> []
+  | _, 0 -> l
+  | _ :: tl, _ -> drop (n-1) tl
+
+let rec take n l =
+  match l, n with
+  | [], _ | _, 0 -> []
+  | e :: tl, _ -> e :: take (n-1) tl
+
+let rec slice2 l start stop = 
+  l |> drop start |> take (stop-start+1)
+
+
+
+let rec rotate l n =
+  (l |> drop n) @ (l |> take n)
+
+
+let rec remove_at i l =
+  match i, l with
+  | _, [] -> []
+  | 0, _ :: tl -> tl
+  | _, e :: tl -> e :: remove_at (i-1) tl
+
+
+let rec insert_at e i l =
+  match i, l with
+  | 0, _ -> e :: l
+  | _, [] -> [e]
+  | _, hd::tl -> hd :: insert_at e (i-1) tl
