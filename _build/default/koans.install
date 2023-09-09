@@ -1,8 +1,0 @@
-lib: [
-  "_build/install/default/lib/koans/META"
-  "_build/install/default/lib/koans/dune-package"
-  "_build/install/default/lib/koans/opam"
-]
-bin: [
-  "_build/install/default/bin/koans"
-]
