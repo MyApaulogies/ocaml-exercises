@@ -49,7 +49,6 @@ type 'a node =
 | One of 'a 
 | Many of 'a node list
 
-
 let nodeflatten l = 
   let rec f res l =
     match l with
@@ -59,20 +58,21 @@ let nodeflatten l =
   in f [] l |> reverse
 
 
-(* attempt 2 after seeing `compress` solution + strategy (this is so fucking cool) *)
+(* attempt 2 after seeing compress/dedup solution + strategy (this is so fucking cool) *)
 let rec nodeflatten2 = function
   | One x :: tl -> x :: nodeflatten2 tl
   | Many xs :: tl -> nodeflatten2 xs @ nodeflatten2 tl
   | [] -> []
 
 
+(* tried + failed on generic list of lists, failed at first (see listflatten2) *)
 (* let rec listflatten = function
 | (_ :: _ as sublist) :: tl -> listflatten sublist @ listflatten tl
 | hd :: tl -> hd :: listflatten tl
 | [] -> [] *)
 
 
-let remdup l = 
+let dedup l = 
   let rec f res l = 
     match l with
     | next :: tl -> (
@@ -92,9 +92,9 @@ let remdup l =
   in f None l |> reverse
 
 (* after seeing solution *)
-let rec dedup = function
-  | a :: (b :: _ as tl) -> if a = b then dedup tl else a :: dedup tl
-  | _ -> []
+let rec dedup2 = function
+  | a :: (b :: _ as tl) -> if a = b then dedup2 tl else a :: dedup2 tl
+  | x -> x
 
 
 
@@ -127,7 +127,7 @@ def groupdup(lis):
   return res
 *)
 
-(* less complicated (not really) *)
+(* less complicated (not really) (doesn't work) *)
 let groupdup2 l = 
   let rec f res = function
   | [] -> []
@@ -165,14 +165,16 @@ let encode1 l =
     | elem :: tl ->
       if elem = prev then f (ctr + 1) prev res tl
       else f 1 elem ((ctr, prev) :: res) tl
-  in reverse (match l with
-  | elem :: tl -> f 1 elem [] tl
-  | [] -> [])
+  in reverse (
+    match l with
+    | elem :: tl -> f 1 elem [] tl
+    | [] -> []
+  )
 
 
 let encode2 l =
   l 
-  |> groupdup2 
+  |> groupdup 
   |> List.map (fun (elem :: tl) -> (1 + len tl, elem))
 
 
@@ -220,6 +222,7 @@ let rec rle_encode l =
   | a :: tl -> combine a (rle_encode tl)
 
 
+
 let rec multi_prepend times e l = 
   match times with
   | 0 -> l
@@ -245,7 +248,7 @@ let rec rep l times =
 
 
 
-let drop1 l n =
+let dropevery1 l n =
   let rec f ctr acc l =
     match l with
     | [] -> acc
@@ -259,7 +262,7 @@ let drop1 l n =
 
 
 (* saw solution *)
-let drop2 l n =
+let dropevery2 l n =
   let rec f ctr l =
     match l with
     | [] -> []
@@ -319,7 +322,7 @@ let rec slice l start stop =
       [e]
 
 
-(* after seeing solution *)
+(* after seeing solution (these are helper functions for slice2) *)
 let rec drop n l =
   match l, n with
   | [], _ -> []
@@ -352,3 +355,55 @@ let rec insert_at e i l =
   | 0, _ -> e :: l
   | _, [] -> [e]
   | _, hd::tl -> hd :: insert_at e (i-1) tl
+
+
+let rec range start stop =
+  if start > stop then
+    []
+  else
+    start :: range (start + 1) stop
+
+
+(* looked at solution, added condition *)
+let rec range2 start stop =
+  if start = stop then
+    [start]
+  else if start > stop then
+    range2 stop start |> reverse
+  else
+    start :: range (start + 1) stop
+
+    
+(* 
+let rand_select l n =
+  let rand_indices bound n =
+    let rec aux bound ctr = 
+      match ctr with
+      | 0 -> []
+      | _ -> Random.int bound :: aux (bound-1) (ctr-1) 
+    in
+    let rec fix = function
+      | [] -> []
+      | a :: [] -> [a]
+      | a :: b :: tl -> 
+        if a = b then
+          a :: fix (b+1 :: tl)
+        else
+          a :: b :: fix tl
+    in
+    aux bound n |> List.sort compare |> fix
+  in
+  let get_indices indices l =
+    let rec aux indices ctr l =
+      match l, indices with
+      | [], _ | _, [] -> []
+      | elem :: tl, i :: tl_indices ->
+        if i = ctr then
+          elem :: aux tl_indices (ctr+1) tl
+        else
+          aux tl_indices (ctr+1) tl
+    in
+    aux (List.sort min indices) 0 l
+  in
+  get_indices (rand_indices (len l) n) l *)
+
