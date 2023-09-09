@@ -373,7 +373,9 @@ let rec range2 start stop =
   else
     start :: range (start + 1) stop
 
-    
+
+
+(* um what *)
 (* 
 let rand_select l n =
   let rand_indices bound n =
@@ -407,3 +409,27 @@ let rand_select l n =
   in
   get_indices (rand_indices (len l) n) l *)
 
+(* much better *)
+let rand_get l = 
+  let index = Random.int (len l) in
+  (List.nth l index, remove_at index l)
+
+let rec rand_select2 l n = 
+  match (l, n) with
+  | [], _ -> []
+  | _, n when n <= 0 -> []
+  | _ -> 
+    let (e, newlist) = rand_get l in
+    e :: rand_select2 newlist (n-1)
+
+
+let lotto_select n max =
+  rand_select2 (range2 1 max) n
+(* ended up same as solution *)
+
+
+let scramble l =
+  rand_select2 l (len l)
+
+
+(* let gen_combos = *)
